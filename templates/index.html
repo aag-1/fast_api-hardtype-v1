@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='favicon.ico') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HardType.v1</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+
+    <style>
+        /* Base styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h1, h2 {
+            font-weight: 300;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 90%;
+            background-color: #111;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.6); /* White glow added */
+            text-align: center;
+            margin-top: 40px; /* Added margin to shift down */
+        }
+
+        /* Logo styling (no glow effect) */
+        .logo {
+            position: absolute; /* Positions logo relative to the body */
+            top: 20px;
+            right: 20px;
+            width: 200px; /* Increased size */
+            height: auto; /* Maintain aspect ratio */
+            background-color: transparent; /* Ensures no background */
+        }
+
+        /* Styling for the text to type */
+        .text-to-type {
+            font-size: 1.5rem;
+            background-color: #222;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* Textarea Styling */
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            resize: none;
+            outline: none;
+            background-color: #000;
+            color: #fff;
+            margin-top: 20px;
+            height: 100px; /* Reduced height to prevent overlap */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        textarea::placeholder {
+            color: #999;
+        }
+
+        /* Button styling */
+        button {
+            background-color: #fff;
+            color: #000;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        /* Smooth transitions for hover effects */
+        input, textarea, button {
+            transition: all 0.3s ease;
+        }
+
+        /* Subtle shadow and focus effects */
+        textarea:focus {
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Kanban-style board for help */
+        .kanban-help {
+            position: absolute; /* Position above the 'By' section */
+            bottom: 160px;
+            left: 15px;
+            padding: 20px;
+            background-color: #111;
+            border-radius: 10px;
+            box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.6); /* White glow added */
+            width: 200px;
+            text-align: left;
+        }
+
+        .kanban-help p {
+            margin: 0;
+            font-size: 1rem;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.6); /* Glowing text */
+        }
+
+        /* Kanban-style board for credits */
+        .kanban-board {
+            position: absolute; /* Position at the bottom left */
+            bottom: 20px;
+            left: 20px;
+            padding: 20px;
+            background-color: #111;
+            border-radius: 10px;
+            box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.6); /* White glow added */
+            width: 200px;
+            text-align: left;
+        }
+
+        .kanban-board p {
+            margin: 0;
+            font-size: 1rem;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.6); /* Glowing text */
+        }
+
+        /* Responsive design */
+        @media (max-width: 1000px) {
+            .container {
+                padding: 20px;
+            }
+            textarea {
+                font-size: 1rem;
+            }
+        }
+
+        /* Cursor animation */
+        @keyframes blink {
+            0% {
+                border-right-color: rgba(255, 255, 255, 0);
+            }
+            50% {
+                border-right-color: rgba(255, 255, 255, 1);
+            }
+            100% {
+                border-right-color: rgba(255, 255, 255, 0);
+            }
+        }
+
+        textarea:focus::after {
+            content: '|';
+            font-weight: 500;
+            color: #fff;
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', path='hardtype_logo_transparent_v2.png') }}" alt="HardType Logo" class="logo">
+    <div class="container">
+        <h1> <b> Welcome to HardType.(v1)!</b></h1>
+        <p>Type the following text:</p>
+        <p class="text-to-type"><strong>{{ words }}</strong></p>
+
+        <form id="typingForm" method="POST">
+            <!-- Hidden field to keep the generated words -->
+            <input type="hidden" name="words" value="{{ words }}">
+            <input type="hidden" name="start_time" id="start_time">
+            <textarea name="input_text" id="input_text" rows="5" placeholder="Start typing..." autofocus></textarea>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if wpm is not none %}
+        <h2>Results:</h2>
+        <p>Your WPM: <strong>{{ wpm }}</strong></p>
+        <!--<p>Adjusted Score: <strong>{{ adjusted_score }}</strong></p> Display adjusted score -->
+        <!--<p>Adjusted Error: <strong>{{ adjusted_error }}</strong></p> Display adjusted error -->
+        {% endif %}
+    </div>
+
+    <!-- Kanban-style board for help -->
+    <div class="kanban-help">
+        <p><b>Help:</b></p>
+        <p>1. Type entire text for efficient result</p>
+        <p>2. Time is calculated from when you start typing and hit enter.</p>
+    </div>
+
+    <!-- Kanban-style board for credits -->
+    <div class="kanban-board">
+        <p><b>By:</b></p>
+        <p>aag.1 (discord)</p>
+        <p>aayushsg1@gmail.com</p>
+    </div>
+
+    <script>
+        const startInput = document.getElementById("start_time");
+        const inputText = document.getElementById("input_text");
+        const typingForm = document.getElementById("typingForm");
+
+        // Start the timer when typing begins
+        inputText.addEventListener("focus", function() {
+            if (!startInput.value) {
+                startInput.value = Date.now() / 1000; // Record time in seconds
+            }
+        });
+
+        // Detect "Enter" key to submit the form
+        inputText.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault(); // Prevent line break in textarea
+                typingForm.submit();    // Submit the form when Enter is pressed
+            }
+        });
+    </script>
+</body>
+</html>
